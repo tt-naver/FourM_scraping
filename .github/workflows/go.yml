@@ -49,7 +49,7 @@ jobs:
     - name: List directory after conversion
       run: ls -l
 
-    - name: Debug: Verify Python Script
+    - name: Debug:Verify Python Script
       run: |
         if [ -f FourM_scraping.py ]; then
           echo "Python script found"
