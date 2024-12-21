@@ -24,7 +24,7 @@ jobs:
         pip install pandas
         pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
 
-    - name: Debug:List Current Directory
+    - name: Debug: List Current Directory
       run: ls -l
 
     - name: Verify Notebook Exists
@@ -40,7 +40,13 @@ jobs:
       run: |
         if [ -f FourM_scraping.ipynb ]; then
           echo "Converting FourM_scraping.ipynb to Python script"
-          jupyter nbconvert --to script FourM_scraping.ipynb || { echo 'nbconvert failed'; exit 1; }
+          jupyter nbconvert --to script FourM_scraping.ipynb
+          if [ -f FourM_scraping.py ]; then
+            echo "FourM_scraping.py successfully created"
+          else
+            echo "Error: FourM_scraping.py not created"
+            exit 1
+          fi
         else
           echo "Error: FourM_scraping.ipynb not found"
           exit 1
@@ -49,7 +55,7 @@ jobs:
     - name: List directory after conversion
       run: ls -l
 
-    - name: Debug:Verify Python Script
+    - name: Debug: Verify Python Script
       run: |
         if [ -f FourM_scraping.py ]; then
           echo "Python script found"
