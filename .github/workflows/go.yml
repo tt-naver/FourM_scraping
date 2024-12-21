@@ -61,5 +61,5 @@ jobs:
 
     - name: Run Python Script
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: /tmp/google-credentials.json
+        GOOGLE_APPLICATION_CREDENTIALS: /content/opportune-ruler-347802-94d5a92e419d.json
       run: python FourM_scraping.py
