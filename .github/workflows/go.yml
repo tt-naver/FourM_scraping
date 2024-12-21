@@ -1,7 +1,7 @@
 name: Auto Run Colab Notebook
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: 
   schedule:
     - cron: "0 0 * * *"
 
@@ -18,27 +18,35 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: Install nbconvert
-      run: pip install nbconvert
+    - name: Install dependencies
+      run: |
+        pip install nbconvert
 
     - name: Convert Notebook to Script
-      run: jupyter nbconvert --to script FourM_scraping.ipynb
+      run: |
+        if [ -f FourM_scraping.ipynb ]; then
+          jupyter nbconvert --to script FourM_scraping.ipynb
+        else
+          echo "Error: FourM_scraping.ipynb not found"
+          exit 1
+        fi
 
     - name: Debug: List Current Directory
       run: ls -l
 
-    - name: Debug: Find Python File
-      run: find . -name "FourM_scraping.py"
-
-    - name: Run sed command
+    - name: Debug: Verify Python Script
       run: |
         if [ -f FourM_scraping.py ]; then
-          sed -i '/get_ipython/d' FourM_scraping.py
-          sed -i '/^!/d' FourM_scraping.py
+          echo "Python script found"
         else
           echo "Error: FourM_scraping.py not found"
           exit 1
         fi
 
-    - name: Run Converted Script
+    - name: Clean Python Script
+      run: |
+        sed -i '/get_ipython/d' FourM_scraping.py
+        sed -i '/^!/d' FourM_scraping.py
+
+    - name: Run Python Script
       run: python FourM_scraping.py
