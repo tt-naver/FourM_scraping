@@ -3,18 +3,15 @@ name: Auto Run Colab Notebook
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 0 * * *"  # 毎日0時に実行
 
 jobs:
   run-notebook:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout specific repository
+    - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        repository: tt-naver/FourM_scraping
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -24,16 +21,26 @@ jobs:
     - name: Install dependencies
       run: |
         pip install nbconvert
-        pip install pandas google-api-python-client google-auth google-auth-httplib2 google-auth-oauthlib
+        pip install pandas
+        pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
 
-    - name: List repository files
+    - name: Debug: List Current Directory
       run: ls -l
+
+    - name: Verify Notebook Exists
+      run: |
+        if [ -f FourM_scraping.ipynb ]; then
+          echo "Found FourM_scraping.ipynb"
+        else
+          echo "Error: FourM_scraping.ipynb not found"
+          exit 1
+        fi
 
     - name: Convert Notebook to Script
       run: |
         if [ -f FourM_scraping.ipynb ]; then
-          echo "Found FourM_scraping.ipynb"
-          jupyter nbconvert --to script FourM_scraping.ipynb
+          echo "Converting FourM_scraping.ipynb to Python script"
+          jupyter nbconvert --to script FourM_scraping.ipynb || { echo 'nbconvert failed'; exit 1; }
         else
           echo "Error: FourM_scraping.ipynb not found"
           exit 1
@@ -42,7 +49,7 @@ jobs:
     - name: List directory after conversion
       run: ls -l
 
-    - name: Debug:Verify Python Script
+    - name: Debug: Verify Python Script
       run: |
         if [ -f FourM_scraping.py ]; then
           echo "Python script found"
@@ -56,10 +63,7 @@ jobs:
         sed -i '/get_ipython/d' FourM_scraping.py
         sed -i '/^!/d' FourM_scraping.py
 
-    - name: Set up Google credentials
-      run: echo ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }} > /tmp/google-credentials.json
-
     - name: Run Python Script
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: /content/opportune-ruler-347802-94d5a92e419d.json
-      run: python FourM_scraping.py
+      run: |
+        echo "Running FourM_scraping.py"
+        python FourM_scraping.py
