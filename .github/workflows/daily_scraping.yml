@@ -1,9 +1,9 @@
 name: Auto Run Colab Notebook
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"  # 毎日 0:00 に実行
-  workflow_dispatch:  # 手動での実行も可能
 
 jobs:
   run-notebook:
@@ -18,14 +18,16 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: Install dependencies
-      run: |
-        pip install jupyter nbconvert
+    - name: Install nbconvert
+      run: pip install nbconvert
 
     - name: Convert Notebook to Script
+      run: jupyter nbconvert --to script FourM_scraping.ipynb
+
+    - name: Modify Script for Execution
       run: |
-        jupyter nbconvert --to script FourM_scraping.ipynb
+        sed -i '/get_ipython/d' FourM_scraping.py  # `get_ipython` を削除
+        sed -i '/^!/d' FourM_scraping.py  # `!` コマンドを削除
 
     - name: Run Converted Script
-      run: |
-        python FourM_scraping.py
+      run: python FourM_scraping.py
