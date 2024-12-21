@@ -1,0 +1,31 @@
+name: Auto Run Colab Notebook
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # 毎日 0:00 に実行
+  workflow_dispatch:  # 手動での実行も可能
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        pip install jupyter nbconvert
+
+    - name: Convert Notebook to Script
+      run: |
+        jupyter nbconvert --to script FourM_scraping.ipynb
+
+    - name: Run Converted Script
+      run: |
+        python FourM_scraping.py
