@@ -1,7 +1,7 @@
 name: Auto Run Colab Notebook
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
 
@@ -31,10 +31,10 @@ jobs:
           exit 1
         fi
 
-    - name: Debug: List Current Directory
+    - name: Debug:List Current Directory
       run: ls -l
 
-    - name: Debug: Verify Python Script
+    - name: Debug:Verify Python Script
       run: |
         if [ -f FourM_scraping.py ]; then
           echo "Python script found"
