@@ -3,7 +3,7 @@ name: Auto Run Colab Notebook
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"  # 毎日 0:00 に実行
+    - cron: "0 0 * * *"
 
 jobs:
   run-notebook:
@@ -24,14 +24,17 @@ jobs:
     - name: Convert Notebook to Script
       run: jupyter nbconvert --to script FourM_scraping.ipynb
 
-    - name: List Files
+    - name: Debug: List Current Directory
       run: ls -l
+
+    - name: Debug: Find Python File
+      run: find . -name "FourM_scraping.py"
 
     - name: Run sed command
       run: |
         if [ -f FourM_scraping.py ]; then
-          sed -i '/get_ipython/d' FourM_scraping.py  # `get_ipython` を削除
-          sed -i '/^!/d' FourM_scraping.py  # `!` コマンドを削除
+          sed -i '/get_ipython/d' FourM_scraping.py
+          sed -i '/^!/d' FourM_scraping.py
         else
           echo "Error: FourM_scraping.py not found"
           exit 1
