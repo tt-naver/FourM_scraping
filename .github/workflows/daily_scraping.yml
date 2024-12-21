@@ -24,10 +24,18 @@ jobs:
     - name: Convert Notebook to Script
       run: jupyter nbconvert --to script FourM_scraping.ipynb
 
-    - name: Modify Script for Execution
+    - name: List Files
+      run: ls -l
+
+    - name: Run sed command
       run: |
-        sed -i '/get_ipython/d' FourM_scraping.py  # `get_ipython` を削除
-        sed -i '/^!/d' FourM_scraping.py  # `!` コマンドを削除
+        if [ -f FourM_scraping.py ]; then
+          sed -i '/get_ipython/d' FourM_scraping.py  # `get_ipython` を削除
+          sed -i '/^!/d' FourM_scraping.py  # `!` コマンドを削除
+        else
+          echo "Error: FourM_scraping.py not found"
+          exit 1
+        fi
 
     - name: Run Converted Script
       run: python FourM_scraping.py
