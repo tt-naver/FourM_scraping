@@ -24,7 +24,7 @@ jobs:
         pip install pandas
         pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
 
-    - name: Debug: List Current Directory
+    - name: Debug:List Current Directory
       run: ls -l
 
     - name: Verify Notebook Exists
