@@ -1,15 +1,13 @@
-name: 自動実行Colabノートブック
+name: FourM Scraping Job
 
 on:
-  workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"  # 毎日0時に実行
+  workflow_dispatch:  # 手動トリガー用
 
 jobs:
-  run-notebook:
+  scraping-job:
     runs-on: ubuntu-latest
-    env:
-      GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}  # シークレットを環境変数に設定
 
     steps:
     - name: チェックアウトリポジトリ
@@ -20,18 +18,16 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: 依存関係をインストール
+    - name: 必要なライブラリをインストール
       run: |
-        pip install nbconvert
-        pip install pandas
-        pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
+        pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client pandas openpyxl
 
-    - name: スクリプトの存在を確認
+    - name: 認証情報を設定
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       run: |
-        ls -l  # カレントディレクトリのファイルをリストして、スクリプトが存在するか確認
+        echo "${GOOGLE_APPLICATION_CREDENTIALS_JSON}" > credentials.json
+        export GOOGLE_APPLICATION_CREDENTIALS=credentials.json
 
-    - name: Pythonスクリプトを実行する
-      run: |
-        echo "FourM_scraping.py を実行しています"
-        # スクリプトがサブディレクトリにある場合は、以下のように適切なパスを指定
-        python ./FourM_scraping/FourM_scraping.py
+    - name: Pythonスクリプトを実行
+      run: python FourM_scraping.py
