@@ -24,7 +24,7 @@ jobs:
         pip install pandas
         pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
 
-    - name: デバッグ:現在のディレクトリの一覧
+    - name: デバッグ: 現在のディレクトリの一覧
       run: ls -l
 
     - name: ノートブックが存在することを確認する
@@ -55,7 +55,7 @@ jobs:
     - name: 変換後のディレクトリをリストする
       run: ls -l
 
-    - name: デバッグ:Python スクリプトの検証
+    - name: デバッグ: Python スクリプトの検証
       run: |
         if [ -f FourM_scraping.py ]; then
           echo "Python スクリプトが見つかりました"
@@ -69,7 +69,6 @@ jobs:
         sed -i '/get_ipython/d' FourM_scraping.py
         sed -i '/^!/d' FourM_scraping.py
 
-    # Google Cloud認証情報を設定
     - name: Google Cloud 認証情報を設定する
       run: |
         echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/gcloud.json
