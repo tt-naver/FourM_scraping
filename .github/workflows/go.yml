@@ -1,12 +1,12 @@
-name: FourM Scraping Job
+name: 自動実行Colabノートブック
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"  # 毎日0時に実行
-  workflow_dispatch:  # 手動トリガー用
 
 jobs:
-  scraping-job:
+  run-notebook:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,16 +18,64 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: 必要なライブラリをインストール
+    - name: 依存関係をインストール
       run: |
-        pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client pandas openpyxl
+        pip install nbconvert
+        pip install pandas
+        pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
 
-    - name: 認証情報を設定
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+    - name: デバッグ: 現在のディレクトリの一覧
+      run: ls -l
+
+    - name: ノートブックが存在することを確認する
       run: |
-        echo "${GOOGLE_APPLICATION_CREDENTIALS_JSON}" > credentials.json
-        export GOOGLE_APPLICATION_CREDENTIALS=credentials.json
+        if [ -f FourM_scraping.ipynb ]; then
+          echo "FourM_scraping.ipynb が見つかりました"
+        else
+          echo "エラー: FourM_scraping.ipynb が見つかりません"
+          exit 1
+        fi
 
-    - name: Pythonスクリプトを実行
-      run: python FourM_scraping.py
+    - name: ノートブックをスクリプトに変換
+      run: |
+        if [ -f FourM_scraping.ipynb ]; then
+          echo "FourM_scraping.ipynb を Python スクリプトに変換しています"
+          jupyter nbconvert --to script FourM_scraping.ipynb
+          if [ -f FourM_scraping.py ]; then
+            echo "FourM_scraping.py が正常に作成されました"
+          else
+            echo "エラー: FourM_scraping.py が作成されていません"
+            exit 1
+          fi
+        else
+          echo "エラー: FourM_scraping.ipynb が見つかりません"
+          exit 1
+        fi
+
+    - name: 変換後のディレクトリをリストする
+      run: ls -l
+
+    - name: デバッグ: Python スクリプトの検証
+      run: |
+        if [ -f FourM_scraping.py ]; then
+          echo "Python スクリプトが見つかりました"
+        else
+          echo "エラー: FourM_scraping.py が見つかりません"
+          exit 1
+        fi
+
+    - name: クリーンな Python スクリプト
+      run: |
+        sed -i '/get_ipython/d' FourM_scraping.py
+        sed -i '/^!/d' FourM_scraping.py
+
+    # Google Cloud認証情報を設定
+    - name: Google Cloud 認証情報を設定する
+      run: |
+        echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/gcloud.json
+        export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json
+
+    - name: Pythonスクリプトを実行する
+      run: |
+        echo "FourM_scraping.py を実行しています"
+        python FourM_scraping.py
