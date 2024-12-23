@@ -24,7 +24,7 @@ jobs:
         pip install pandas
         pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
 
-    - name: Debug:List Current Directory
+    - name: Debug: List Current Directory
       run: ls -l
 
     - name: Verify Notebook Exists
@@ -55,7 +55,7 @@ jobs:
     - name: List directory after conversion
       run: ls -l
 
-    - name: Debug:Verify Python Script
+    - name: Debug: Verify Python Script
       run: |
         if [ -f FourM_scraping.py ]; then
           echo "Python script found"
@@ -68,6 +68,12 @@ jobs:
       run: |
         sed -i '/get_ipython/d' FourM_scraping.py
         sed -i '/^!/d' FourM_scraping.py
+
+    # Google Cloud認証情報を設定
+    - name: Set up Google Cloud credentials
+      run: |
+        echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/gcloud.json
+        export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json
 
     - name: Run Python Script
       run: |
