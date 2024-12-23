@@ -1,4 +1,4 @@
-name: Auto Run Colab Notebook
+name: 自動実行Colabノートブック
 
 on:
   workflow_dispatch:
@@ -10,72 +10,72 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: チェックアウトリポジトリ
       uses: actions/checkout@v3
 
-    - name: Setup Python
+    - name: Pythonのセットアップ
       uses: actions/setup-python@v4
       with:
         python-version: 3.9
 
-    - name: Install dependencies
+    - name: 依存関係をインストール
       run: |
         pip install nbconvert
         pip install pandas
         pip install google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
 
-    - name: Debug:List Current Directory
+    - name: デバッグ: 現在のディレクトリの一覧
       run: ls -l
 
-    - name: Verify Notebook Exists
+    - name: ノートブックが存在することを確認する
       run: |
         if [ -f FourM_scraping.ipynb ]; then
-          echo "Found FourM_scraping.ipynb"
+          echo "FourM_scraping.ipynb が見つかりました"
         else
-          echo "Error: FourM_scraping.ipynb not found"
+          echo "エラー: FourM_scraping.ipynb が見つかりません"
           exit 1
         fi
 
-    - name: Convert Notebook to Script
+    - name: ノートブックをスクリプトに変換
       run: |
         if [ -f FourM_scraping.ipynb ]; then
-          echo "Converting FourM_scraping.ipynb to Python script"
+          echo "FourM_scraping.ipynb を Python スクリプトに変換しています"
           jupyter nbconvert --to script FourM_scraping.ipynb
           if [ -f FourM_scraping.py ]; then
-            echo "FourM_scraping.py successfully created"
+            echo "FourM_scraping.py が正常に作成されました"
           else
-            echo "Error: FourM_scraping.py not created"
+            echo "エラー: FourM_scraping.py が作成されていません"
             exit 1
           fi
         else
-          echo "Error: FourM_scraping.ipynb not found"
+          echo "エラー: FourM_scraping.ipynb が見つかりません"
           exit 1
         fi
 
-    - name: List directory after conversion
+    - name: 変換後のディレクトリをリストする
       run: ls -l
 
-    - name: Debug:Verify Python Script
+    - name: デバッグ: Python スクリプトの検証
       run: |
         if [ -f FourM_scraping.py ]; then
-          echo "Python script found"
+          echo "Python スクリプトが見つかりました"
         else
-          echo "Error: FourM_scraping.py not found"
+          echo "エラー: FourM_scraping.py が見つかりません"
           exit 1
         fi
 
-    - name: Clean Python Script
+    - name: クリーンな Python スクリプト
       run: |
         sed -i '/get_ipython/d' FourM_scraping.py
         sed -i '/^!/d' FourM_scraping.py
 
     # Google Cloud認証情報を設定
-    - name: Set up Google Cloud credentials
+    - name: Google Cloud 認証情報を設定する
       run: |
         echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/gcloud.json
         export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud.json
 
-    - name: Run Python Script
+    - name: Pythonスクリプトを実行する
       run: |
-        echo "Running FourM_scraping.py"
+        echo "FourM_scraping.py を実行しています"
         python FourM_scraping.py
